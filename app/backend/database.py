@@ -1,17 +1,17 @@
+import os
 from sqlalchemy import create_engine
-from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
+load_dotenv()
 
-url = URL.create(
-    drivername="postgresql",
-    username="",
-    password="",
-    host="localhost",
-    database="secureakey",
-    port=5432
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-engine = create_engine(url)
-Session = sessionmaker(bind=engine)
-session = Session()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
