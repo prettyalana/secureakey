@@ -47,12 +47,14 @@ async def get_code(code: str, state: str | None = None, db: Session = Depends(ge
             github_id = user_data["id"],
             github_username = user_data["login"],
             access_token = access_token,
-            created_at = user_data["created_at"],
-            updated_at = user_data["updated_at"]
+            created_at = datetime.now(),
+            updated_at = datetime.now()
         )
         db.add(new_user)
     else:
         existing_user.access_token = access_token
+        existing_user.updated_at = datetime.now()
+        
     db.commit()
     
     return {
