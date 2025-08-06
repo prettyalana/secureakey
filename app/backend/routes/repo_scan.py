@@ -1,14 +1,11 @@
 import os
 import httpx
 from auth import get_current_user
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
-from fastapi.responses import RedirectResponse
-from fastapi import Request
+from fastapi.responses import RedirectResponse, JSONResponse
 from dotenv import load_dotenv
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from fastapi import Depends
 from database import get_db
 from models import User
 from datetime import datetime
