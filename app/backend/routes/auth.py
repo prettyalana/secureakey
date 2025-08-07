@@ -45,12 +45,11 @@ async def get_code(
         )
         github_code = post_exchange_token.json()
         access_token = github_code.get("access_token")
-        user_headers = {"Authorization": f"Bearer {access_token}"}
+        user_headers = {"Authorization": f"token {access_token}"}
         user_response = await client.get(
             "https://api.github.com/user", headers=user_headers
         )
         user_data = user_response.json()
-        print(user_data)
     existing_user = db.query(User).filter(User.github_id == user_data["id"]).first()
 
     if existing_user == None:

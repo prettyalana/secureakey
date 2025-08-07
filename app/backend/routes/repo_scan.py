@@ -16,6 +16,7 @@ router = APIRouter()
 @router.get("/repos")
 async def get_my_repos(current_user: User = Depends(get_current_user)):
     async with httpx.AsyncClient() as client:
+        print(current_user)
         headers = {"Authorization": f"Bearer {current_user.access_token}", "Accept": "application/vnd.github+json",
                    "User-Agent": "secureakey"
         }
