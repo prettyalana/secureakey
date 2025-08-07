@@ -15,8 +15,19 @@ router = APIRouter()
 
 @router.get("/repos")
 async def get_my_repos(current_user: User = Depends(get_current_user)):
-    pass
-
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {current_user.access_token}", "Accept": "application/vnd.github+json",
+                   "User-Agent": "secureakey"
+        }
+        
+        response = await client.get(
+            "https://api.github.com/user/repos", headers=headers
+        )
+        
+        if response.status_code == 200:
+            repos = response.json()
+            return {"repositories": [repo["name"] for repo in repos]}
+        
 
 @router.post("/scan/repo")
 async def scan_repository(repo_name: str, db: Session = Depends(get_db)):
