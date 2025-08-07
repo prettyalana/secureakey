@@ -21,8 +21,8 @@ class User(Base):
     updated_at = Column(DateTime)
 
 
-class BlacklistedToken(Base, table=True):
-    __tablename__: str = "blacklisted_tokens"
+class BlacklistedToken(Base):
+    __tablename__ = "blacklisted_tokens"
 
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -3,7 +3,7 @@ import httpx
 from jose import jwt, JWTError
 from fastapi import APIRouter, Depends, Request, HTTPException, status
 from fastapi.responses import RedirectResponse, JSONResponse
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -19,7 +19,7 @@ github_client_id = os.getenv("GITHUB_CLIENT_ID")
 github_client_secret = os.getenv("GITHUB_CLIENT_SECRET")
 redirect_url = os.getenv("GITHUB_REDIRECT_URI")
 
-github_auth_url = f"https://github.com/login/oauth/authorize?client_id={github_client_id}&redirect_uri={redirect_url}&scope=user:email"
+github_auth_url = f"https://github.com/login/oauth/authorize?client_id={github_client_id}&redirect_uri={redirect_url}&scope=repo,user:email"
 token_exchange_url = "https://github.com/login/oauth/access_token"
 
 
@@ -67,7 +67,7 @@ async def get_code(
         existing_user.updated_at = datetime.now(timezone.utc)
 
     jwt_token = jwt.encode(
-        {"user_id": user_data["id"], "exp": datetime.now(timezone.utc) + timedelta(days=30)},
+        {"github_id": user_data["id"], "exp": datetime.now(timezone.utc) + timedelta(days=30)},
         os.getenv("SECRET_KEY"),
         algorithm="HS256",
     )
@@ -83,11 +83,11 @@ async def get_code(
         },
     }
 
-def get_current_user(token: str = Depends(security), db: Session = Depends(get_db)):
+def get_current_user(token: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
     try:
-        payload = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
-        user_id = payload.get("user_id")
-        user = db.query(User).filter(User.github_id == user_id).first()
+        payload = jwt.decode(token.credentials, os.getenv("SECRET_KEY"), algorithms=["HS256"])
+        github_id = payload.get("github_id")
+        user = db.query(User).filter(User.github_id == github_id).first()
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
         return user
