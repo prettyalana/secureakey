@@ -11,6 +11,15 @@ from database import get_db
 from models import User
 from datetime import datetime
 
+API_KEY_PATTERNS = {
+    "OpenAI": r"sk-[a-zA-Z0-9]{20,}",
+    "GitHub": r"gh[ops]_[A-Za-z0-9_]{36,255}", 
+    "AWS": r"AKIA[0-9A-Z]{16}",
+    "Stripe": r"sk_(test_|live_)[0-9a-zA-Z]{24,}",
+    "Google": r"AIza[0-9A-Za-z\-_]{35}",
+    "Slack": r"xox[baprs]-[0-9a-zA-Z\-]{10,72}",
+}
+
 router = APIRouter()
 
 
