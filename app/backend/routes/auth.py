@@ -66,7 +66,10 @@ async def get_code(
         existing_user.updated_at = datetime.now(timezone.utc)
 
     jwt_token = jwt.encode(
-        {"github_id": user_data["id"], "exp": datetime.now(timezone.utc) + timedelta(days=30)},
+        {
+            "github_id": user_data["id"],
+            "exp": datetime.now(timezone.utc) + timedelta(days=30),
+        },
         os.getenv("SECRET_KEY"),
         algorithm="HS256",
     )
@@ -82,9 +85,15 @@ async def get_code(
         },
     }
 
-def get_current_user(token: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
+
+def get_current_user(
+    token: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db),
+):
     try:
-        payload = jwt.decode(token.credentials, os.getenv("SECRET_KEY"), algorithms=["HS256"])
+        payload = jwt.decode(
+            token.credentials, os.getenv("SECRET_KEY"), algorithms=["HS256"]
+        )
         github_id = payload.get("github_id")
         user = db.query(User).filter(User.github_id == github_id).first()
         if not user:
