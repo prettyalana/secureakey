@@ -57,5 +57,3 @@ def create_access_token(data: dict, expires_delta=None):
 def is_token_blacklisted(token, session):
     return session.query(BlacklistedToken).filter_by(token=token).first() is not None
 
-
-Base.metadata.create_all(engine)
