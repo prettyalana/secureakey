@@ -25,7 +25,6 @@ services:
     name: secureakey-frontend
     runtime: static
     plan: free
-    region: oregon
     rootDir: app/frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
