@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: secureakey-backend
+    runtime: python
+    rootDir: app/backend
+    buildCommand: pip install -r ../../requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    
+  - type: static
+    name: secureakey-frontend
+    rootDir: app/frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
