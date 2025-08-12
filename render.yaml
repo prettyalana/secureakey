@@ -1,13 +1,31 @@
 services:
+  # Backend service
   - type: web
     name: secureakey-backend
     runtime: python
+    plan: free
+    region: oregon
     rootDir: app/backend
     buildCommand: pip install -r ../../requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-    
-  - type: static
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: GITHUB_REDIRECT_URI
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+
+  # Frontend service (React + Vite)
+  - type: web
     name: secureakey-frontend
+    runtime: static
+    plan: free
+    region: oregon
     rootDir: app/frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
