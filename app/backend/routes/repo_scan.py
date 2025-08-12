@@ -10,8 +10,11 @@ from pydantic import BaseModel
 from database import get_db
 from models import User
 from datetime import datetime
+from fastapi import Body
+from fastapi.middleware.cors import CORSMiddleware
 
 API_KEY_PATTERNS = {
+    # More keys coming soon
     "OpenAI": r"sk-[a-zA-Z0-9]{20,}",
     "GitHub": r"gh[ops]_[A-Za-z0-9_]{36,255}",
     "AWS": r"AKIA[0-9A-Z]{16}",
@@ -23,8 +26,16 @@ API_KEY_PATTERNS = {
 router = APIRouter()
 
 
+class ScanRepoRequest(BaseModel):
+    repo_name: str
+
+
 @router.get("/repos")
 async def get_my_repos(current_user: User = Depends(get_current_user)):
+    repos = []
+    page = 1
+    per_page = 100
+
     async with httpx.AsyncClient() as client:
         headers = {
             "Authorization": f"Bearer {current_user.access_token}",
@@ -32,13 +43,20 @@ async def get_my_repos(current_user: User = Depends(get_current_user)):
             "User-Agent": "secureakey",
         }
 
-        response = await client.get(
-            "https://api.github.com/user/repos", headers=headers
-        )
+        while True:
+            url = f"https://api.github.com/user/repos?page={page}&per_page={per_page}"
+            response = await client.get(url, headers=headers)
+            if response.status_code != 200:
+                break
 
-        if response.status_code == 200:
-            repos = response.json()
-            return {"repositories": [repo["name"] for repo in repos]}
+            batch = response.json()
+            if not batch:
+                break
+
+            repos.extend(batch)
+            page += 1
+
+    return {"repositories": [repo["name"] for repo in repos]}
 
 
 async def get_all_files(client, owner, repo, path="", headers=None):
@@ -49,23 +67,27 @@ async def get_all_files(client, owner, repo, path="", headers=None):
 
     contents = response.json()
 
-    for item in contents:
-        if item["type"] == "file":
-            all_files.append(item)
-        elif item["type"] == "dir":
-            subdir_files = await get_all_files(
-                client, owner, repo, item["path"], headers
-            )
-            all_files.extend(subdir_files)
+    if isinstance(contents, dict):
+        if contents.get("type") == "file":
+            all_files.append(contents)
+        return all_files
+
+    if isinstance(contents, list):
+        for item in contents:
+            if item["type"] == "file":
+                all_files.append(item)
+            elif item["type"] == "dir":
+                subdir_files = await get_all_files(
+                    client, owner, repo, item["path"], headers
+                )
+                all_files.extend(subdir_files)
+
     return all_files
 
 
 async def scan_file_content(client, file_info):
 
     findings = []
-
-    if file_info["size"] > 100000:
-        return findings
 
     try:
         response = await client.get(file_info["download_url"])
@@ -92,8 +114,12 @@ async def scan_file_content(client, file_info):
 
 @router.post("/scan/repo")
 async def scan_repository(
-    repo_name: str, current_user: User = Depends(get_current_user)
+    payload: ScanRepoRequest,
+    current_user: User = Depends(get_current_user),
 ):
+    repo_name = payload.repo_name
+    owner = current_user.github_username
+
     async with httpx.AsyncClient() as client:
         headers = {
             "Authorization": f"Bearer {current_user.access_token}",
@@ -110,10 +136,18 @@ async def scan_repository(
             file_findings = await scan_file_content(client, file_info)
             all_findings.extend(file_findings)
 
-        if all_findings:
+        if len(all_findings) > 1:
             return {
                 "status": "keys_detected",
                 "message": f"⚠️ Found {len(all_findings)} potential API keys!",
+                "repository": repo_name,
+                "total_files_scanned": len(all_files),
+                "findings": all_findings,
+            }
+        elif len(all_findings) == 1:
+            return {
+                "status": "keys_detected",
+                "message": f"⚠️ Found {len(all_findings)} potential API key!",
                 "repository": repo_name,
                 "total_files_scanned": len(all_files),
                 "findings": all_findings,

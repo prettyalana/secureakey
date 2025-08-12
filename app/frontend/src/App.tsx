@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import './App.css';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromUrl = params.get('token');
+    const usernameFromUrl = params.get('username');
+
+    if (tokenFromUrl && usernameFromUrl) {
+      localStorage.setItem('secureakey_token', tokenFromUrl);
+      localStorage.setItem('secureakey_username', usernameFromUrl);
+      setToken(tokenFromUrl);
+      setUser(usernameFromUrl);
+
+      window.history.replaceState({}, document.title, '/');
+    } else {
+      
+      const storedToken = localStorage.getItem('secureakey_token');
+      const storedUser = localStorage.getItem('secureakey_username');
+      if (storedToken && storedUser) {
+        setToken(storedToken);
+        setUser(storedUser);
+      }
+    }
+
+    setLoading(false); 
+  }, []);
+
+  const handleLogin = () => {
+    window.location.href = 'http://localhost:8000/auth/login';
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('secureakey_token');
+    localStorage.removeItem('secureakey_username');
+    setToken(null);
+    setUser(null);
+  };
+
+  if (loading) return null;
+
+  if (!token || !user) {
+    return <Login onLogin={handleLogin} />;
+  }
+
+  return <Dashboard user={user} token={token} onLogout={handleLogout} />;
 }
 
-export default App
+export default App;
