@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from routes import router
 from routes.repo_scan import router as repo_router
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 from models import Base
 from database import engine
 
