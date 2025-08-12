@@ -34,7 +34,7 @@ function App() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = 'http://localhost:8000/auth/login';
+    window.location.href = 'https://secureakey-backend.onrender.com/auth/login';
   };
 
   const handleLogout = () => {

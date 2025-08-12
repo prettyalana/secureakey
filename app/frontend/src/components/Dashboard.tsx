@@ -32,7 +32,7 @@ export default function Dashboard({ user, token, onLogout }: DashboardProps) {
   useEffect(() => {
     const fetchRepos = async () => {
       try {
-        const res = await fetch('http://localhost:8000/repos', {
+        const res = await fetch('https://secureakey-backend.onrender.com/repos', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -66,7 +66,7 @@ export default function Dashboard({ user, token, onLogout }: DashboardProps) {
     setScanResult(null);
 
     try {
-      const res = await fetch('http://localhost:8000/scan/repo', {
+      const res = await fetch('https://secureakey-backend.onrender.com/scan/repo', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
