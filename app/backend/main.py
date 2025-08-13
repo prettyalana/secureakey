@@ -10,16 +10,17 @@ app = FastAPI()
 @app.on_event("startup")
 async def create_tables():
     Base.metadata.create_all(engine)
-    
-app.include_router(auth_router)
-app.include_router(repo_router)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[""],
+    allow_origins=["https://secureakey.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+) 
+app.include_router(auth_router)
+app.include_router(repo_router)
+
 
 
 @app.get("/")
