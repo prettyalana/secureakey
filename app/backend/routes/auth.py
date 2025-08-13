@@ -77,7 +77,7 @@ async def get_code(
     db.commit()
 
     return RedirectResponse(
-        url=f"https://secureakey.onrender.com={jwt_token}&username={user_data['login']}"
+        url=f"https://secureakey.onrender.com/?token={jwt_token}&username={user_data['login']}"
     )
 
 
