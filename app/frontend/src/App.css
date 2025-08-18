@@ -30,6 +30,10 @@ svg {
   margin-bottom: 2rem;
 }
 
+code {
+  word-break: break-word;
+}
+
 .login-wrapper {
   min-height: 100vh;
   min-width: 100vw;
