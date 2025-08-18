@@ -11,6 +11,9 @@ services:
       - type: rewrite
         source: /api/*
         destination: https://secureakey-backend.onrender.com/*
+      - type: rewrite
+        source: /*
+        destination: /index.html
 
 
   # Backend service
