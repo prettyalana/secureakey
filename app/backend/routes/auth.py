@@ -25,7 +25,7 @@ token_exchange_url = "https://github.com/login/oauth/access_token"
 
 @router.get("/auth/login")
 async def get_auth():
-    return RedirectResponse(github_auth_url)
+    return {"auth_url": github_auth_url}
 
 
 @router.get("/auth/callback")
@@ -75,10 +75,15 @@ async def get_code(
     )
 
     db.commit()
-
-    return RedirectResponse(
-        url=f"https://secureakey.onrender.com/?token={jwt_token}&username={user_data['login']}"
-    )
+    
+    return {
+    "access_token": jwt_token,
+    "token_type": "bearer",
+    "user": {
+        "github_id": user_data["id"],
+        "github_username": user_data["login"]
+    }
+}
 
 
 def get_current_user(
