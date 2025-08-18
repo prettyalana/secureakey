@@ -97,7 +97,7 @@ export default function Dashboard({ user, token, onLogout }: DashboardProps) {
         <h1>Welcome, {user}!</h1>
       </div>
 
-      <div className='repo-search-bar'>
+      <div className='repo-search-wrapper'>
         <label className='search-bar-label'>Select Repository:</label>
         <input
           type="text"

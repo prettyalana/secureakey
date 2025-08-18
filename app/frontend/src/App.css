@@ -18,8 +18,8 @@ label {
 
 input {
   padding: 0.5rem;
-  border-radius: 4px; 
-  border: 1px solid #ccc; 
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 h4 {
@@ -49,8 +49,8 @@ code {
 }
 
 .dashboard-wrapper {
- min-height: 100vh;
- padding: 2rem;
+  min-height: 100vh;
+  padding: 2rem;
 }
 
 .button-wrapper {
@@ -95,7 +95,7 @@ code {
   font-weight: bold;
 }
 
-.repo-search-bar {
+.repo-search-wrapper {
   margin-bottom: 1rem;
 }
 
@@ -112,4 +112,13 @@ code {
 
 .card {
   padding: 2em;
+}
+
+@media (max-width: 34.375rem) {
+
+  .repo-search-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+  
 }
