@@ -25,7 +25,7 @@ token_exchange_url = "https://github.com/login/oauth/access_token"
 
 @router.get("/auth/login")
 async def get_auth():
-    return {"auth_url": github_auth_url}
+    return RedirectResponse(github_auth_url)
 
 
 @router.get("/auth/callback")
