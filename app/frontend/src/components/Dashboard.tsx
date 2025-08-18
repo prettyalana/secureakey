@@ -94,7 +94,7 @@ export default function Dashboard({ user, token, onLogout }: DashboardProps) {
         </button>
         </div>
       <div className='header-wrapper'>
-        <h1>Welcome, {user}!</h1>
+        <h1 className='dashboard-greeting'>Welcome, {user}!</h1>
       </div>
 
       <div className='repo-search-wrapper'>

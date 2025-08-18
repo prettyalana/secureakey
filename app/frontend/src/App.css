@@ -121,7 +121,7 @@ code {
     justify-content: center;
   }
 
-  h1 {
+  .app-header {
     font-size: 2.5em;
     white-space: nowrap;
   }
