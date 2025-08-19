@@ -44,7 +44,7 @@ async def get_my_repos(current_user: User = Depends(get_current_user)):
         }
 
         while True:
-            url = f"https://api.github.com/user/repos?page={page}&per_page={per_page}"
+            url = f"https://api.github.com/user/repos?type=owner&page={page}&per_page={per_page}"
             response = await client.get(url, headers=headers)
             if response.status_code != 200:
                 break
