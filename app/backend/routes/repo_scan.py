@@ -1,8 +1,9 @@
 import os
 import httpx
 import re
+import base64
 from .auth import get_current_user
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.responses import RedirectResponse, JSONResponse
 from dotenv import load_dotenv
@@ -160,7 +161,32 @@ async def scan_repository(
                 "total_files_scanned": len(all_files),
             }
 
-# TODO: Scan all repositories at once
-@router.post("/scan/user")
-async def scan_all_repos(db: Session = Depends(get_db)):
-    pass
+@router.get("/file/{repo_name}/{file_path:path}")
+async def get_file_content(repo_name: str, file_path: str, current_user: User = Depends(get_current_user)):
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {current_user.access_token}"}
+        url = f"https://api.github.com/repos/{current_user.github_username}/{repo_name}/contents/{file_path}"
+        response = await client.get(url, headers=headers)
+        
+        if response.status_code != 200:
+            raise HTTPException(status_code=404, detail="File not found")
+            
+        data = response.json()
+        content = base64.b64decode(data["content"]).decode('utf-8')
+        return {"content": content, "sha": data["sha"]}
+
+class FileUpdateRequest(BaseModel):
+    new_content: str
+    sha: str
+
+@router.put("/file/{repo_name}/{file_path:path}")
+async def update_file(repo_name: str, file_path: str, payload: FileUpdateRequest, current_user: User = Depends(get_current_user)):
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {current_user.access_token}"}
+        url = f"https://api.github.com/repos/{current_user.github_username}/{repo_name}/contents/{file_path}"
+        
+        encoded_content = base64.b64encode(payload.new_content.encode('utf-8')).decode('utf-8')
+        data = {"message": f"Fixed API key in {file_path}", "content": encoded_content, "sha": payload.sha}
+        
+        response = await client.put(url, headers=headers, json=data)
+        return {"status": "success" if response.status_code == 200 else "error"}
