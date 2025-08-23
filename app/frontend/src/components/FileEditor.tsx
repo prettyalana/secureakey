@@ -36,10 +36,14 @@ export default function FileEditor({ repoName, filePath, authToken, onClose }: P
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)' }}>
       <div style={{ background: 'white', margin: '2rem', height: 'calc(100vh - 4rem)' }}>
-        <div style={{ padding: '1rem', background: '#ff1493', color: 'white' }}>
-          <span>{filePath}</span>
-          <button onClick={save} style={{ float: 'right', marginLeft: '1rem' }}>Save</button>
-          <button onClick={onClose} style={{ float: 'right' }}>Close</button>
+        <div style={{ padding: '1rem', background: '#ff1493', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div>
+            <span>{filePath}</span>
+          </div>
+          <div>
+            <button onClick={save} style={{ float: 'right', marginLeft: '1rem' }}>Save</button>
+            <button onClick={onClose} style={{ float: 'right' }}>Close</button>
+          </div>
         </div>
         <Editor height="90%" value={content} onChange={(val) => setContent(val || '')} />
       </div>
