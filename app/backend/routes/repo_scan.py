@@ -86,14 +86,17 @@ async def get_all_files(client, owner, repo, path="", headers=None):
     return all_files
 
 
-async def scan_file_content(client, file_info):
+async def scan_file_content(client, file_info, headers, owner, repo):
 
     findings = []
+    
+    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_info['path']}"
 
     try:
-        response = await client.get(file_info["download_url"])
+        response = await client.get(url, headers=headers)
         if response.status_code == 200:
-            content = response.text
+            data = response.json()
+            content = base64.b64decode(data["content"]).decode('utf-8')
 
         lines = content.split("\n")
         for line_num, line in enumerate(lines, 1):
