@@ -137,7 +137,7 @@ async def scan_repository(
 
         all_findings = []
         for file_info in all_files:
-            file_findings = await scan_file_content(client, file_info)
+            file_findings = await scan_file_content(client, file_info, headers=headers, owner=owner, repo=repo_name)
             all_findings.extend(file_findings)
 
         if len(all_findings) > 1:
